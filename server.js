@@ -143,7 +143,7 @@ router.route('/meals/:meal_id')
     .delete(function(req, res) {
         Meals.remove({
             _id: req.params.meal_id
-        }, function(err, bear) {
+        }, function(err, meal) {
             if (err)
                 res.send(err);
 
