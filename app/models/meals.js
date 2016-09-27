@@ -7,7 +7,8 @@ var current_hour = date.getHours();
 var MealsSchema   = new Schema({
     name: String,
     cals: Number,
-    created: { type: Date, default: Date.now }
+    created: { type: Date, default: Date.now },
+    userId: String
 });
 
 module.exports = mongoose.model('Meals', MealsSchema);

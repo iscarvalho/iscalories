@@ -5,9 +5,6 @@ var cors 	   = require('cors');
 
 // use it before all route definitions
 app.use(cors());
-
-// configure app to use bodyParser()
-// this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -55,6 +52,7 @@ var Meals = require('./app/models/meals');
 
 // Users routes
 router.route('/users')
+    // CREATE user
 	.post(function(req, res) {
         
         var users = new Users();
@@ -62,6 +60,7 @@ router.route('/users')
         users.name = req.body.name;
         users.password = req.body.password;
         users.role = req.body.role;
+        users.maxCals = req.body.maxCals;
 
         users.save(function(err) {
             if (err)
@@ -71,6 +70,7 @@ router.route('/users')
         });
         
     })
+    // GET all users
     .get(function(req, res) {
         Users.find(function(err, users) {
             if (err)
@@ -79,7 +79,9 @@ router.route('/users')
         });
     });
 
+// Authentication route
 router.route('/auth')
+    // Auth user
 	.post(function(req, res) {
         Users.findOne({
         	name : req.body.name,        	
@@ -103,7 +105,7 @@ router.route('/auth')
 
 // Roles routes
 router.route('/roles')
-	
+	// GET roles
     .get(function(req, res) {
         Roles.find(function(err, roles) {
             if (err)
@@ -112,22 +114,26 @@ router.route('/roles')
         });
     });
 
-// Meals routes
-router.route('/meals')
-	
+/* MEALS */
+router.route('/meals/user/:user_id')
+    // GET user meals
     .get(function(req, res) {
-        Meals.find(function(err, meals) {
+        Meals.find( {'userId' : req.params.user_id}, function(err, meals) {
             if (err)
                 res.send(err);
             res.json(meals);
         });
-    })
+    });
+
+router.route('/meals')
+    // CREATE user meal	
     .post(function(req, res) {
         
         var meals = new Meals();
         meals.name = req.body.name;
         meals.cals = req.body.cals;
         meals.created = req.body.created;
+        meals.userId = req.body.userId;
 
         meals.save(function(err) {
             if (err)
@@ -139,7 +145,7 @@ router.route('/meals')
     });
 
 router.route('/meals/:meal_id')
-
+    // DELETE meal
     .delete(function(req, res) {
         Meals.remove({
             _id: req.params.meal_id
@@ -150,13 +156,7 @@ router.route('/meals/:meal_id')
             res.json({ message: 'Meal deleted' });
         });
     })
-    .get(function(req, res) {
-        Meals.findById(req.params.meal_id, function(err, meal) {
-            if (err)
-                res.send(err);
-            res.json(meal);
-        });
-    })
+    // UPDATE meal
     .put(function(req, res) {
         Meals.findById(req.params.meal_id, function(err, meal) {
             if (err)
